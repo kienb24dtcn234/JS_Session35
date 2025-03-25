@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List K24</title>
+    <style>
+      .khung {
+        text-align: center;
+        font-family: Arial, sans-serif;
+      }
+
+      input[type="text"] {
+        width: 200px;
+        padding: 10px;
+        margin: 10px;
+      }
+
+      button {
+        padding: 10px 15px;
+        margin: 5px;
+      }
+
+      .job-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="khung">
+      <h2>To-Do List K24</h2>
+      <input type="text" placeholder="Nhập công việc" id="job" />
+      <button onclick="add()">Thêm</button>
+      <div id="list"></div>
+    </div>
+    <script>
+      let jobs = JSON.parse(localStorage.getItem("jobs")) || [];
+
+      function add() {
+        let id = jobs.length ? jobs[jobs.length - 1].id + 1 : 1;
+        let name = document.getElementById("job").value.trim();
+
+        if (!name) {
+          alert("Vui lòng nhập thông tin");
+          return;
+        }
+
+        let newjob = { id: id, name: name };
+        jobs.push(newjob);
+        localStorage.setItem("jobs", JSON.stringify(jobs));
+        render();
+        document.getElementById("job").value = "";
+      }
+
+      function render() {
+        let str = "";
+        jobs.forEach((job) => {
+          str += `  
+                <div class="job-item">  
+                    <span>${job.name}</span>  
+                    <button onclick="update(${job.id})">Sửa</button>  
+                    <button onclick="remove(${job.id})">Xóa</button>  
+                </div>`;
+        });
+        document.getElementById("list").innerHTML = str;
+      }
+
+      function remove(id) {
+        if (confirm("Bạn có muốn xóa hay không")) {
+          jobs = jobs.filter((job) => job.id !== id);
+          localStorage.setItem("jobs", JSON.stringify(jobs));
+          render();
+        }
+      }
+
+      function update(id) {
+        let index = jobs.findIndex((job) => job.id === id);
+        let updateNew = prompt("Chỉnh sửa công việc:", jobs[index].name);
+        if (updateNew) {
+          jobs[index].name = updateNew;
+          localStorage.setItem("jobs", JSON.stringify(jobs));
+          render();
+        }
+      }
+
+      render();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý Bookmark</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      body {
+        background-color: rgb(193, 139, 244);
+        text-align: center;
+        font-family: Arial, sans-serif;
+      }
+      .main {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .bookmark-btn {
+        background-color: rgb(51, 4, 94);
+        color: white;
+        padding: 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        min-width: 250px;
+        justify-content: center;
+      }
+      .bookmark-btn:hover {
+        background-color: rgb(70, 20, 120);
+      }
+      .add-btn {
+        background-color: rgb(51, 4, 94);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .add-btn:hover {
+        background-color: rgb(70, 20, 120);
+      }
+      .popup {
+        display: none;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 20px;
+        z-index: 1000;
+        width: 300px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .popup-header h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      .popup label {
+        display: block;
+        text-align: left;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .popup input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .save-btn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+      }
+      .save-btn:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <button class="add-btn" onclick="AddBookMark()">ADD BOOKMARK</button>
+    </div>
+    <div class="main" id="bookmarkList">
+    </div>
+
+    <div class="popup" id="addBookmarkPopup">
+      <div class="popup-header">
+        <h3>Thêm Bookmark</h3>
+        <button class="close-btn" onclick="closePopup()">✖</button>
+      </div>
+      <div>
+        <label for="websiteName">Tên Website</label>
+        <input type="text" id="websiteName" placeholder="Nhập tên website" />
+        <label for="websiteURL">URL Website</label>
+        <input type="text" id="websiteURL" placeholder="Nhập URL website" />
+        <button class="save-btn" onclick="saveBookmark()">Lưu</button>
+      </div>
+    </div>
+
+    <script>
+      let bookmarks = [
+        {
+          name: "GOOGLE - SEARCH ENGINE",
+          url: "https://www.google.com",
+          icon: "fa-brands fa-google",
+        },
+        {
+          name: "YOUTUBE - VIDEO SHARING",
+          url: "https://www.youtube.com",
+          icon: "fa-brands fa-youtube",
+        },
+      ];
+      if (localStorage.getItem("bookmarks")) {
+        bookmarks = JSON.parse(localStorage.getItem("bookmarks"));
+      }
+
+      function AddBookMark() {
+        document.getElementById("addBookmarkPopup").style.display = "block";
+      }
+
+      function closePopup() {
+        document.getElementById("addBookmarkPopup").style.display = "none";
+        document.getElementById("websiteName").value = "";
+        document.getElementById("websiteURL").value = "";
+      }
+
+      function saveBookmark() {
+        let name = document.getElementById("websiteName").value;
+        let url = document.getElementById("websiteURL").value;
+        if (name && url) {
+          let icon = "fa-solid fa-globe"; 
+          if (url.includes("google")) {
+            icon = "fa-brands fa-google";
+          } else if (url.includes("youtube")) {
+            icon = "fa-brands fa-youtube";
+          }
+
+          bookmarks.push({ name: name.toUpperCase(), url, icon });
+          localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+          alert("Đã lưu bookmark!");
+          closePopup();
+          renderBookmarks();
+        } else {
+          alert("Vui lòng điền đầy đủ thông tin!");
+        }
+      }
+
+      function renderBookmarks() {
+        let bookmarkList = document.getElementById("bookmarkList");
+        let str = "";
+        bookmarks.forEach((bookmark) => {
+          str += `
+                    <div>
+                        <a href="${bookmark.url}" target="_blank" style="text-decoration: none;">
+                            <button class="bookmark-btn">
+                                <i class="${bookmark.icon}"></i> ${bookmark.name}
+                            </button>
+                        </a>
+                    </div>`;
+        });
+        bookmarkList.innerHTML = str;
+      }
+      renderBookmarks();
+    </script>
+  </body>
+</html>

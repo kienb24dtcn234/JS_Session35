@@ -1,0 +1,185 @@
+<!DOCTYPE html>  
+<html lang="vi">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Danh sách nhân viên Rikkei</title>  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+        }  
+        h1 {  
+            text-align: center;  
+        }  
+        .search-container {  
+            display: flex;  
+            gap: 10px;  
+            margin-bottom: 20px;  
+            justify-content: center;  
+        }  
+        .search-container input {  
+            padding: 8px;  
+            width: 200px;  
+            border: 1px solid #ccc;  
+            border-radius: 4px;  
+        }  
+        .search-container button {  
+            padding: 8px 16px;  
+            background-color: #4CAF50;  
+            color: white;  
+            border: none;  
+            border-radius: 4px;  
+            cursor: pointer;  
+        }  
+        .search-container button:hover {  
+            background-color: #45a049;  
+        }  
+        table {  
+            width: 80%;  
+            margin: 0 auto;  
+            border-collapse: collapse;  
+            margin-bottom: 20px;  
+        }  
+        table, th, td {  
+            border: 1px solid #ddd;  
+        }  
+        th, td {  
+            padding: 12px;  
+            text-align: left;  
+        }  
+        th {  
+            background-color: #f2f2f2;  
+        }  
+        .pagination {  
+            display: flex;  
+            justify-content: center;  
+            gap: 10px;  
+            margin-top: 20px;  
+        }  
+        .pagination button {  
+            padding: 8px 16px;  
+            border: 1px solid #ccc;  
+            background-color: white;  
+            cursor: pointer;  
+            border-radius: 4px;  
+        }  
+        .pagination button.active {  
+            background-color: #007bff;  
+            color: white;  
+            border: 1px solid #007bff;  
+        }  
+        .pagination button:hover {  
+            background-color: #f0f0f0;  
+        }  
+        .pagination button:disabled {  
+            background-color: #e0e0e0;  
+            cursor: not-allowed;  
+        }   
+    </style>  
+</head>  
+<body>  
+    <h1>Danh sách nhân viên Rikkei</h1>  
+    <div class="search-container">  
+        <input type="text" id="searchName" placeholder="Tên nhân viên" onkeyup="filterEmployees()">  
+        <input type="text" id="searchPosition" placeholder="Chức vụ" onkeyup="filterEmployees()">  
+        <button onclick="addEmployee()">Thêm nhân viên</button>  
+    </div>  
+    <table id="employeeTable">  
+        <thead>  
+            <tr>  
+                <th>STT</th>  
+                <th>Tên</th>  
+                <th>Chức vụ</th>  
+            </tr>  
+        </thead>  
+        <tbody id="employeeList"></tbody>  
+    </table>  
+    <div class="pagination" id="pagination"></div>   
+    <script>  
+        let employees = [  
+            { name: "Nguyễn Văn A", position: "Developer" },  
+            { name: "Trần Thị B", position: "Designer" },  
+            { name: "Phạm Văn C", position: "Project Manager" },  
+            { name: "Lê Thị D", position: "QA Engineer" },  
+            { name: "Vũ Văn E", position: "DevOps" },  
+            { name: "Hoàng Thị F", position: "HR Manager" }  
+        ];  
+        if (localStorage.getItem("employees")) {  
+            employees = JSON.parse(localStorage.getItem("employees"));  
+        }  
+        let itemPage = 3;  
+        let currentPage = 1;  
+        let filteredEmployees = [...employees];  
+        function calculatePages(data) {  
+            return Math.ceil(data.length / itemPage);  
+        }  
+        function showItems() {  
+            let start = (currentPage - 1) * itemPage;  
+            let end = start + itemPage;  
+            let str = "";  
+            for (let i = start; i < Math.min(end, filteredEmployees.length); i++) {  
+                str += `<tr>  
+                            <td>${i + 1}</td>  
+                            <td>${filteredEmployees[i].name}</td>  
+                            <td>${filteredEmployees[i].position}</td>  
+                        </tr>`;  
+            }  
+            document.getElementById("employeeList").innerHTML = str;  
+        }  
+        function showPagination() {  
+            let pages = calculatePages(filteredEmployees);  
+            let str = `<button onclick="prevPage()" ${currentPage === 1 ? "disabled" : ""}>Trước</button>`;  
+            for (let i = 1; i <= pages; i++) {  
+                str += `<button onclick="clickPage(${i})" class="${currentPage === i ? "active" : ""}">${i}</button>`;  
+            }  
+            str += `<button onclick="nextPage()" ${currentPage === pages ? "disabled" : ""}>Tiếp</button>`;  
+            document.getElementById("pagination").innerHTML = str;  
+        }  
+        function clickPage(index) {  
+            currentPage = index;  
+            showItems();  
+            showPagination();  
+        }  
+        function prevPage() {  
+            if (currentPage > 1) {  
+                currentPage--;  
+                showItems();  
+                showPagination();  
+            }  
+        }  
+        function nextPage() {  
+            let pages = calculatePages(filteredEmployees);  
+            if (currentPage < pages) {  
+                currentPage++;  
+                showItems();  
+                showPagination();  
+            }  
+        }  
+        function filterEmployees() {  
+            let searchName = document.getElementById("searchName").value.toLowerCase();  
+            let searchPosition = document.getElementById("searchPosition").value.toLowerCase();  
+            filteredEmployees = employees.filter(employee =>  
+                employee.name.toLowerCase().includes(searchName) &&  
+                employee.position.toLowerCase().includes(searchPosition)  
+            );  
+            currentPage = 1;  
+            showItems();  
+            showPagination();  
+        }  
+        function addEmployee() {  
+            let name = prompt("Nhập tên nhân viên:");  
+            let position = prompt("Nhập chức vụ:");  
+            if (name && position) {  
+                employees.push({ name, position });  
+                localStorage.setItem("employees", JSON.stringify(employees));  
+                filteredEmployees = [...employees];  
+                currentPage = 1;  
+                showItems();  
+                showPagination();  
+            }  
+        }  
+        showItems();  
+        showPagination();  
+    </script>  
+</body>  
+</html>
